@@ -80,6 +80,20 @@ module Api
           assert_response :not_found
         end
 
+        # POST /api/v1/users/:user_id/transactions — different user
+        test "returns 403 when authenticated as a different user" do
+          user = users(:one)
+          other_user = users(:two)
+          token = JsonWebToken.encode(user_id: other_user.id)
+
+          post api_v1_user_transactions_url(user),
+            params: { transaction: { type: "deposit", amount_cents: 100 } },
+            headers: { "Authorization" => "Bearer #{token}" },
+            as: :json
+
+          assert_response :forbidden
+        end
+
         # POST /api/v1/users/:user_id/transactions — invalid type
         test "returns 422 for invalid transaction type" do
           user = users(:one)

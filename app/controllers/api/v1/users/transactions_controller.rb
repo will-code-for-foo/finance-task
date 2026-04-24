@@ -2,13 +2,24 @@ module Api
   module V1
     module Users
       class TransactionsController < ApplicationController
-        ALLOWED_TYPES = %w[deposit withdrawal].freeze
+        ALLOWED_TYPES = (Transaction::TRANSACTION_TYPES - %w[transfer]).freeze
 
         def create
           @user = User.find(params[:user_id])
 
-          type         = transaction_params[:type]
-          amount_cents = transaction_params[:amount_cents].to_i
+          unless @current_user.id == @user.id
+            render json: { error: "Forbidden" }, status: :forbidden
+            return
+          end
+
+          type = transaction_params[:type]
+
+          begin
+            amount_cents = Integer(transaction_params[:amount_cents])
+          rescue ArgumentError, TypeError
+            render json: { error: "amount_cents must be an integer" }, status: :unprocessable_entity
+            return
+          end
 
           unless ALLOWED_TYPES.include?(type)
             render json: { error: "Invalid transaction type. Must be deposit or withdrawal." }, status: :unprocessable_entity
