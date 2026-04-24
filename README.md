@@ -1,24 +1,27 @@
-# README
+## create user
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+### Will return user id and jwt token
 
-Things you may want to cover:
+curl -X POST http://localhost:3000/api/v1/users \
+-H "Content-Type: application/json" \
+-d '{"user": {"email": "alice@example.com"}}'
 
-* Ruby version
+## deposit/withdrawal
 
-* System dependencies
+curl -X POST http://localhost:3000/api/v1/users/<USER_ID>/transactions \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-d '{"transaction": {"type": "deposit", "amount_cents": 10000}}'
 
-* Configuration
+## check balance
 
-* Database creation
+curl -X GET http://localhost:3000/api/v1/users/<USER_ID>/balance \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <JWT_TOKEN>"
 
-* Database initialization
+## transfer
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+curl -X POST http://localhost:3000/api/v1/transfers \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-d '{"transfer": {"sender_id": <SENDER_ID>>, <RECEIVER_ID>: 2, "amount_cents": 3000}}'
