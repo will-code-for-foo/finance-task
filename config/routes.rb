@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :users, only: [:create] do
         resource :balance, only: [:show], module: :users
+        resources :transactions, only: [:create], module: :users
       end
     end
   end
