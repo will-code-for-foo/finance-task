@@ -37,7 +37,7 @@ class FinancialTransactionService
   end
 
   def perform_withdrawal
-    @sender.lock!
+    @sender.lock! # lock and reload sender to get fresh balance_cents value for funds check
     raise InsufficientFundsError, "Insufficient funds for withdrawal" if @sender.balance_cents < @amount_cents
 
     @sender.balance_cents -= @amount_cents
@@ -52,6 +52,7 @@ class FinancialTransactionService
   def perform_transfer
     # Lock both rows in a consistent order (by id) to prevent deadlocks
     # when two concurrent transfers involve the same pair of users.
+    # lock! reloads balance_cents for the sender to get fresh value for funds check
     [@sender, @receiver].sort_by(&:id).each(&:lock!)
 
     raise InsufficientFundsError, "Insufficient funds for transfer" if @sender.balance_cents < @amount_cents
