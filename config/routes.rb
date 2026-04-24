@@ -11,6 +11,7 @@ Rails.application.routes.draw do
         resource :balance, only: [:show], module: :users
         resources :transactions, only: [:create], module: :users
       end
+      resources :transfers, only: [:create]
     end
   end
 end
