@@ -26,5 +26,5 @@ curl -X GET http://localhost:3000/api/v1/users/<USER_ID>/balance \
 curl -X POST http://localhost:3000/api/v1/transfers \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <JWT_TOKEN>" \
--d '{"transfer": {"sender_id": <SENDER_ID>>, <RECEIVER_ID>: 2, "amount_cents": 3000}}'
+-d '{"transfer": {"sender_id": <SENDER_ID>>, "receiver_id": <RECEIVER_ID>, "amount_cents": 3000}}'
 ```
