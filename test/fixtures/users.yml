@@ -1,11 +1,11 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  id: 
-  email: MyString
-  balance_cents: 1
+  id: <%= SecureRandom.uuid %>
+  email: alice@example.com
+  balance_cents: 1000
 
 two:
-  id: 
-  email: MyString
-  balance_cents: 1
+  id: <%= SecureRandom.uuid %>
+  email: bob@example.com
+  balance_cents: 500
