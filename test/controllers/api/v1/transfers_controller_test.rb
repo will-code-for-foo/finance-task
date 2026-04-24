@@ -52,7 +52,7 @@ module Api
       end
 
       # POST /api/v1/transfers — receiver does not exist
-      test "returns 422 when receiver does not exist" do
+      test "returns 404 when receiver does not exist" do
         sender = users(:one)
         token  = JsonWebToken.encode(user_id: sender.id)
 
@@ -61,7 +61,7 @@ module Api
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
-        assert_response :unprocessable_entity
+        assert_response :not_found
         json = response.parsed_body
         assert json["error"].present?
       end
@@ -95,6 +95,9 @@ module Api
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
+        assert_response :unprocessable_entity
+        json = response.parsed_body
+        assert json["error"].present?
         assert_equal original_sender_balance,   sender.reload.balance_cents
         assert_equal original_receiver_balance, receiver.reload.balance_cents
       end

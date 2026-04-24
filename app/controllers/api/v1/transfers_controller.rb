@@ -5,7 +5,7 @@ module Api
         sender_id   = transfer_params[:sender_id]
         receiver_id = transfer_params[:receiver_id]
 
-        unless @current_user.id == sender_id
+        unless @current_user.id.to_s == sender_id.to_s
           render json: { error: "Forbidden" }, status: :forbidden
           return
         end
@@ -30,7 +30,7 @@ module Api
       rescue FinancialTransactionService::InsufficientFundsError => e
         render json: { error: e.message }, status: :unprocessable_entity
       rescue ActiveRecord::RecordNotFound
-        render json: { error: "Receiver not found" }, status: :unprocessable_entity
+        render json: { error: "Receiver not found" }, status: :not_found
       rescue ActiveRecord::RecordInvalid => e
         render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
       end
