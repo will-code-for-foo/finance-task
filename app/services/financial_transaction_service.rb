@@ -9,6 +9,8 @@ class FinancialTransactionService
   end
 
   def call
+    validate_inputs!
+
     ActiveRecord::Base.transaction do
       case @transaction_type
       when "deposit"
@@ -17,13 +19,28 @@ class FinancialTransactionService
         perform_withdrawal
       when "transfer"
         perform_transfer
-      else
-        raise ArgumentError, "Unknown transaction type: #{@transaction_type}"
       end
     end
   end
 
   private
+
+  def validate_inputs!
+    raise ArgumentError, "amount_cents must be a positive integer" unless @amount_cents.is_a?(Integer) && @amount_cents > 0
+
+    case @transaction_type
+    when "deposit"
+      raise ArgumentError, "receiver is required for deposit" if @receiver.nil?
+    when "withdrawal"
+      raise ArgumentError, "sender is required for withdrawal" if @sender.nil?
+    when "transfer"
+      raise ArgumentError, "sender is required for transfer" if @sender.nil?
+      raise ArgumentError, "receiver is required for transfer" if @receiver.nil?
+      raise ArgumentError, "sender and receiver must differ" if @sender.id == @receiver.id
+    else
+      raise ArgumentError, "Unknown transaction type: #{@transaction_type}"
+    end
+  end
 
   def perform_deposit
     @receiver.lock!
