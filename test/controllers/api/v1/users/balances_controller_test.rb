@@ -15,7 +15,7 @@ module Api
 
           assert_response :ok
           json = response.parsed_body
-          assert_equal user.balance_cents, json["balance_cents"]
+          assert_equal user.balance_cents.to_f / 100, json["balance"]
         end
 
         # GET /api/v1/balance — no token

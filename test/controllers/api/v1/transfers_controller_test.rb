@@ -10,14 +10,14 @@ module Api
         token    = JsonWebToken.encode(user_id: sender.id)
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: receiver.id, amount_cents: 200 } },
+          params: { transfer: { receiver_id: receiver.id, amount: "2.00" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
         assert_response :created
         json = response.parsed_body
         assert_equal "transfer",  json["transaction"]["transaction_type"]
-        assert_equal 200,         json["transaction"]["amount_cents"]
+        assert_equal 2.0,         json["transaction"]["amount"]
         assert_equal sender.id,   json["transaction"]["sender_id"]
         assert_equal receiver.id, json["transaction"]["receiver_id"]
 
@@ -30,7 +30,7 @@ module Api
         receiver = users(:two)
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: receiver.id, amount_cents: 100 } },
+          params: { transfer: { receiver_id: receiver.id, amount: "1.00" } },
           as: :json
 
         assert_response :unauthorized
@@ -41,7 +41,7 @@ module Api
         token = JsonWebToken.encode(user_id: users(:one).id)
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: SecureRandom.uuid, amount_cents: 100 } },
+          params: { transfer: { receiver_id: SecureRandom.uuid, amount: "1.00" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -57,7 +57,7 @@ module Api
         token    = JsonWebToken.encode(user_id: sender.id)
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: receiver.id, amount_cents: 999_999 } },
+          params: { transfer: { receiver_id: receiver.id, amount: "9999.99" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -75,7 +75,7 @@ module Api
         original_receiver_balance = receiver.balance_cents
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: receiver.id, amount_cents: 999_999 } },
+          params: { transfer: { receiver_id: receiver.id, amount: "9999.99" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 

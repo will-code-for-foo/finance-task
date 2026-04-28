@@ -6,26 +6,26 @@ module Api
           transaction = FinancialTransactionService.for_user_transaction(
             user:             @current_user,
             transaction_type: transaction_params[:type],
-            amount_cents:     transaction_params[:amount_cents]
+            amount_cents:     (transaction_params[:amount].to_d * 100).round.to_i
           ).call
 
           render json: {
             transaction: transaction_response(transaction),
-            balance_cents: @current_user.reload.balance_cents
+            balance: @current_user.reload.balance_cents.to_f / 100
           }, status: :created
         end
 
         private
 
         def transaction_params
-          params.require(:transaction).permit(:type, :amount_cents)
+          params.require(:transaction).permit(:type, :amount)
         end
 
         def transaction_response(transaction)
           {
             id:               transaction.id,
             transaction_type: transaction.transaction_type,
-            amount_cents:     transaction.amount_cents,
+            amount:           transaction.amount_cents.to_f / 100,
             sender_id:        transaction.sender_id,
             receiver_id:      transaction.receiver_id,
             created_at:       transaction.created_at

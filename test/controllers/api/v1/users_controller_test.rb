@@ -13,7 +13,7 @@ module Api
         json = response.parsed_body
         assert json["user"]["id"].present?
         assert_equal "newuser@example.com", json["user"]["email"]
-        assert_equal 0, json["user"]["balance_cents"]
+        assert_equal 0.0, json["user"]["balance"]
         assert json["token"].present?
       end
 

@@ -10,17 +10,17 @@ module Api
           token = JsonWebToken.encode(user_id: user.id)
 
           post api_v1_transactions_url,
-            params: { transaction: { type: "deposit", amount_cents: 500 } },
+            params: { transaction: { type: "deposit", amount: "5.00" } },
             headers: { "Authorization" => "Bearer #{token}" },
             as: :json
 
           assert_response :created
           json = response.parsed_body
           assert_equal "deposit", json["transaction"]["transaction_type"]
-          assert_equal 500, json["transaction"]["amount_cents"]
+          assert_equal 5.0, json["transaction"]["amount"]
           assert_nil json["transaction"]["sender_id"]
           assert_equal user.id, json["transaction"]["receiver_id"]
-          assert_equal user.balance_cents + 500, json["balance_cents"]
+          assert_equal 15.0, json["balance"]
         end
 
         # POST /api/v1/transactions — withdrawal success
@@ -29,17 +29,17 @@ module Api
           token = JsonWebToken.encode(user_id: user.id)
 
           post api_v1_transactions_url,
-            params: { transaction: { type: "withdrawal", amount_cents: 500 } },
+            params: { transaction: { type: "withdrawal", amount: "5.00" } },
             headers: { "Authorization" => "Bearer #{token}" },
             as: :json
 
           assert_response :created
           json = response.parsed_body
           assert_equal "withdrawal", json["transaction"]["transaction_type"]
-          assert_equal 500, json["transaction"]["amount_cents"]
+          assert_equal 5.0, json["transaction"]["amount"]
           assert_equal user.id, json["transaction"]["sender_id"]
           assert_nil json["transaction"]["receiver_id"]
-          assert_equal user.balance_cents - 500, json["balance_cents"]
+          assert_equal 5.0, json["balance"]
         end
 
         # POST /api/v1/transactions — insufficient funds
@@ -48,7 +48,7 @@ module Api
           token = JsonWebToken.encode(user_id: user.id)
 
           post api_v1_transactions_url,
-            params: { transaction: { type: "withdrawal", amount_cents: 999_999 } },
+            params: { transaction: { type: "withdrawal", amount: "9999.99" } },
             headers: { "Authorization" => "Bearer #{token}" },
             as: :json
 
@@ -60,7 +60,7 @@ module Api
         # POST /api/v1/transactions — no token
         test "returns 401 when no token provided" do
           post api_v1_transactions_url,
-            params: { transaction: { type: "deposit", amount_cents: 500 } },
+            params: { transaction: { type: "deposit", amount: "5.00" } },
             as: :json
 
           assert_response :unauthorized
@@ -72,7 +72,7 @@ module Api
           token = JsonWebToken.encode(user_id: user.id)
 
           post api_v1_transactions_url,
-            params: { transaction: { type: "transfer", amount_cents: 100 } },
+            params: { transaction: { type: "transfer", amount: "1.00" } },
             headers: { "Authorization" => "Bearer #{token}" },
             as: :json
 

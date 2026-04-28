@@ -24,7 +24,7 @@ module Api
         {
           id: user.id,
           email: user.email,
-          balance_cents: user.balance_cents,
+          balance: user.balance_cents.to_f / 100,
           created_at: user.created_at
         }
       end

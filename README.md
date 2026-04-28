@@ -2,7 +2,7 @@
 
 ## Setup
 
-**Requirements:** Ruby 3.3+, PostgreSQL
+**Requirements:** Ruby 4.0+, PostgreSQL
 
 ```bash
 bin/setup          # install gems, create & migrate database
@@ -32,7 +32,7 @@ curl -X POST http://localhost:3000/api/v1/users \
 curl -X POST http://localhost:3000/api/v1/transactions \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <JWT_TOKEN>" \
--d '{"transaction": {"type": "deposit", "amount_cents": 10000}}'
+-d '{"transaction": {"type": "deposit", "amount": "100.00"}}'
 ```
 ### Check balance
 ```
@@ -45,5 +45,5 @@ curl -X GET http://localhost:3000/api/v1/balance \
 curl -X POST http://localhost:3000/api/v1/transfers \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <JWT_TOKEN>" \
--d '{"transfer": {"receiver_id": "<RECEIVER_ID>", "amount_cents": 3000}}'
+-d '{"transfer": {"receiver_id": "<RECEIVER_ID>", "amount": "30.00"}}'
 ```
