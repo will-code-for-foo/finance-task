@@ -4,8 +4,8 @@ class FinancialTransactionService
 
   USER_INITIATED_TYPES = %w[deposit withdrawal].freeze
 
-  def self.for_transfer(sender:, receiver_id:, amount_cents:)
-    receiver = User.find(receiver_id)
+  def self.for_transfer(sender:, receiver_email:, amount_cents:)
+    receiver = User.find_by!(email: receiver_email)
     new(
       transaction_type: "transfer",
       amount_cents:     amount_cents,

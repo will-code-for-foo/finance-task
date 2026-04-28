@@ -10,7 +10,7 @@ module Api
         token    = JsonWebToken.encode(user_id: sender.id)
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: receiver.id, amount: "2.00" } },
+          params: { transfer: { receiver_email: receiver.email, amount: "2.00" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -28,7 +28,7 @@ module Api
         receiver = users(:two)
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: receiver.id, amount: "1.00" } },
+          params: { transfer: { receiver_email: receiver.email, amount: "1.00" } },
           as: :json
 
         assert_response :unauthorized
@@ -39,7 +39,7 @@ module Api
         token = JsonWebToken.encode(user_id: users(:one).id)
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: SecureRandom.uuid, amount: "1.00" } },
+          params: { transfer: { receiver_email: "nonexistent@example.com", amount: "1.00" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -55,7 +55,7 @@ module Api
         token    = JsonWebToken.encode(user_id: sender.id)
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: receiver.id, amount: "9999.99" } },
+          params: { transfer: { receiver_email: receiver.email, amount: "9999.99" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -73,7 +73,7 @@ module Api
         original_receiver_balance = receiver.balance_cents
 
         post api_v1_transfers_url,
-          params: { transfer: { receiver_id: receiver.id, amount: "9999.99" } },
+          params: { transfer: { receiver_email: receiver.email, amount: "9999.99" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
