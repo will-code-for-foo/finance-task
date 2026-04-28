@@ -4,6 +4,16 @@ class FinancialTransactionService
 
   USER_INITIATED_TYPES = %w[deposit withdrawal].freeze
 
+  def self.for_transfer(sender:, receiver_id:, amount_cents:)
+    receiver = User.find(receiver_id)
+    new(
+      transaction_type: "transfer",
+      amount_cents:     amount_cents,
+      sender:           sender,
+      receiver:         receiver
+    )
+  end
+
   def self.for_user_transaction(user:, transaction_type:, amount_cents:)
     unless USER_INITIATED_TYPES.include?(transaction_type)
       raise InvalidInputError, "Invalid transaction type. Must be one of: #{USER_INITIATED_TYPES.join(', ')}"

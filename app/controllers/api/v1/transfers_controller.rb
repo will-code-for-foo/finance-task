@@ -2,18 +2,10 @@ module Api
   module V1
     class TransfersController < ApplicationController
       def create
-        unless @current_user.id.to_s == transfer_params[:sender_id].to_s
-          render json: { error: "Forbidden" }, status: :forbidden
-          return
-        end
-
-        receiver = User.find(transfer_params[:receiver_id])
-
-        transaction = FinancialTransactionService.new(
-          transaction_type: "transfer",
-          amount_cents:     transfer_params[:amount_cents],
-          sender:           @current_user,
-          receiver:         receiver
+        transaction = FinancialTransactionService.for_transfer(
+          sender:      @current_user,
+          receiver_id: transfer_params[:receiver_id],
+          amount_cents: transfer_params[:amount_cents]
         ).call
 
         render json: { transaction: transaction_response(transaction) }, status: :created
@@ -22,7 +14,7 @@ module Api
       private
 
       def transfer_params
-        params.require(:transfer).permit(:sender_id, :receiver_id, :amount_cents)
+        params.require(:transfer).permit(:receiver_id, :amount_cents)
       end
 
       def transaction_response(transaction)

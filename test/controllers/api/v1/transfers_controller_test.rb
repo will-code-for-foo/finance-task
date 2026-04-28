@@ -10,7 +10,7 @@ module Api
         token    = JsonWebToken.encode(user_id: sender.id)
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 200 } },
+          params: { transfer: { receiver_id: receiver.id, amount_cents: 200 } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -27,37 +27,21 @@ module Api
 
       # POST /api/v1/transfers — no token
       test "returns 401 when no token provided" do
-        sender   = users(:one)
         receiver = users(:two)
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 100 } },
+          params: { transfer: { receiver_id: receiver.id, amount_cents: 100 } },
           as: :json
 
         assert_response :unauthorized
       end
 
-      # POST /api/v1/transfers — sender_id does not match current_user
-      test "returns 403 when sender_id does not match authenticated user" do
-        sender   = users(:one)
-        receiver = users(:two)
-        token    = JsonWebToken.encode(user_id: receiver.id)
-
-        post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 100 } },
-          headers: { "Authorization" => "Bearer #{token}" },
-          as: :json
-
-        assert_response :forbidden
-      end
-
       # POST /api/v1/transfers — receiver does not exist
       test "returns 404 when receiver does not exist" do
-        sender = users(:one)
-        token  = JsonWebToken.encode(user_id: sender.id)
+        token = JsonWebToken.encode(user_id: users(:one).id)
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: SecureRandom.uuid, amount_cents: 100 } },
+          params: { transfer: { receiver_id: SecureRandom.uuid, amount_cents: 100 } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -73,7 +57,7 @@ module Api
         token    = JsonWebToken.encode(user_id: sender.id)
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 999_999 } },
+          params: { transfer: { receiver_id: receiver.id, amount_cents: 999_999 } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -91,7 +75,7 @@ module Api
         original_receiver_balance = receiver.balance_cents
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 999_999 } },
+          params: { transfer: { receiver_id: receiver.id, amount_cents: 999_999 } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 

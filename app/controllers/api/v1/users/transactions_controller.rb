@@ -2,18 +2,16 @@ module Api
   module V1
     module Users
       class TransactionsController < ApplicationController
-        before_action :find_and_authorize_user!
-
         def create
           transaction = FinancialTransactionService.for_user_transaction(
-            user:             @user,
+            user:             @current_user,
             transaction_type: transaction_params[:type],
             amount_cents:     transaction_params[:amount_cents]
           ).call
 
           render json: {
             transaction: transaction_response(transaction),
-            balance_cents: @user.reload.balance_cents
+            balance_cents: @current_user.reload.balance_cents
           }, status: :created
         end
 

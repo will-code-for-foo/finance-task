@@ -4,12 +4,12 @@ module Api
   module V1
     module Users
       class TransactionsControllerTest < ActionDispatch::IntegrationTest
-        # POST /api/v1/users/:user_id/transactions — deposit success
+        # POST /api/v1/transactions — deposit success
         test "creates a deposit and returns 201 with transaction and updated balance" do
           user = users(:one)
           token = JsonWebToken.encode(user_id: user.id)
 
-          post api_v1_user_transactions_url(user),
+          post api_v1_transactions_url,
             params: { transaction: { type: "deposit", amount_cents: 500 } },
             headers: { "Authorization" => "Bearer #{token}" },
             as: :json
@@ -23,12 +23,12 @@ module Api
           assert_equal user.balance_cents + 500, json["balance_cents"]
         end
 
-        # POST /api/v1/users/:user_id/transactions — withdrawal success
+        # POST /api/v1/transactions — withdrawal success
         test "creates a withdrawal and returns 201 with transaction and updated balance" do
           user = users(:one)
           token = JsonWebToken.encode(user_id: user.id)
 
-          post api_v1_user_transactions_url(user),
+          post api_v1_transactions_url,
             params: { transaction: { type: "withdrawal", amount_cents: 500 } },
             headers: { "Authorization" => "Bearer #{token}" },
             as: :json
@@ -42,12 +42,12 @@ module Api
           assert_equal user.balance_cents - 500, json["balance_cents"]
         end
 
-        # POST /api/v1/users/:user_id/transactions — insufficient funds
+        # POST /api/v1/transactions — insufficient funds
         test "returns 422 when withdrawal exceeds balance" do
           user = users(:one)
           token = JsonWebToken.encode(user_id: user.id)
 
-          post api_v1_user_transactions_url(user),
+          post api_v1_transactions_url,
             params: { transaction: { type: "withdrawal", amount_cents: 999_999 } },
             headers: { "Authorization" => "Bearer #{token}" },
             as: :json
@@ -57,49 +57,21 @@ module Api
           assert json["error"].present?
         end
 
-        # POST /api/v1/users/:user_id/transactions — no token
+        # POST /api/v1/transactions — no token
         test "returns 401 when no token provided" do
-          user = users(:one)
-
-          post api_v1_user_transactions_url(user),
+          post api_v1_transactions_url,
             params: { transaction: { type: "deposit", amount_cents: 500 } },
             as: :json
 
           assert_response :unauthorized
         end
 
-        # POST /api/v1/users/:user_id/transactions — user not found
-        test "returns 404 when user does not exist" do
-          token = JsonWebToken.encode(user_id: users(:one).id)
-
-          post api_v1_user_transactions_url(user_id: SecureRandom.uuid),
-            params: { transaction: { type: "deposit", amount_cents: 500 } },
-            headers: { "Authorization" => "Bearer #{token}" },
-            as: :json
-
-          assert_response :not_found
-        end
-
-        # POST /api/v1/users/:user_id/transactions — different user
-        test "returns 403 when authenticated as a different user" do
-          user = users(:one)
-          other_user = users(:two)
-          token = JsonWebToken.encode(user_id: other_user.id)
-
-          post api_v1_user_transactions_url(user),
-            params: { transaction: { type: "deposit", amount_cents: 100 } },
-            headers: { "Authorization" => "Bearer #{token}" },
-            as: :json
-
-          assert_response :forbidden
-        end
-
-        # POST /api/v1/users/:user_id/transactions — invalid type
+        # POST /api/v1/transactions — invalid type
         test "returns 422 for invalid transaction type" do
           user = users(:one)
           token = JsonWebToken.encode(user_id: user.id)
 
-          post api_v1_user_transactions_url(user),
+          post api_v1_transactions_url,
             params: { transaction: { type: "transfer", amount_cents: 100 } },
             headers: { "Authorization" => "Bearer #{token}" },
             as: :json

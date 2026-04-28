@@ -10,14 +10,14 @@ curl -X POST http://localhost:3000/api/v1/users \
 ```
 ### Deposit/withdrawal
 ```
-curl -X POST http://localhost:3000/api/v1/users/<USER_ID>/transactions \
+curl -X POST http://localhost:3000/api/v1/transactions \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <JWT_TOKEN>" \
 -d '{"transaction": {"type": "deposit", "amount_cents": 10000}}'
 ```
 ### Check balance
 ```
-curl -X GET http://localhost:3000/api/v1/users/<USER_ID>/balance \
+curl -X GET http://localhost:3000/api/v1/balance \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <JWT_TOKEN>"
 ```
@@ -26,5 +26,5 @@ curl -X GET http://localhost:3000/api/v1/users/<USER_ID>/balance \
 curl -X POST http://localhost:3000/api/v1/transfers \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <JWT_TOKEN>" \
--d '{"transfer": {"sender_id": <SENDER_ID>>, "receiver_id": <RECEIVER_ID>, "amount_cents": 3000}}'
+-d '{"transfer": {"receiver_id": "<RECEIVER_ID>", "amount_cents": 3000}}'
 ```

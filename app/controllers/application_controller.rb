@@ -29,16 +29,11 @@ class ApplicationController < ActionController::API
       render json: { error: "User not found" }, status: :unauthorized
     end
   end
-
-  def find_and_authorize_user!
-    @user = User.find(params[:user_id])
-    render json: { error: "Forbidden" }, status: :forbidden if @current_user != @user
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "User not found" }, status: :not_found
-  end
-
   def render_unprocessable(e)  = render json: { error: e.message }, status: :unprocessable_entity
   def render_record_invalid(e) = render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   def render_not_found(e)      = render json: { error: e.message }, status: :not_found
-  def render_internal_error    = render json: { error: "Internal server error" }, status: :internal_server_error
+  def render_internal_error(e)
+    Rails.logger.error("#{e.class}: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+    render json: { error: "Internal server error" }, status: :internal_server_error
+  end
 end
