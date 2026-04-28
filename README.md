@@ -1,5 +1,24 @@
 # Finance API
 
+## Setup
+
+**Requirements:** Ruby 3.3+, PostgreSQL
+
+```bash
+bin/setup          # install gems, create & migrate database
+bin/rails server   # start on http://localhost:3000
+```
+
+To run the test suite:
+
+```bash
+bin/rails test
+```
+
+---
+
+## API
+
 ### Create user
 
 #### Will return user id and jwt token
