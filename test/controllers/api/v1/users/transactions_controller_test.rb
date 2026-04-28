@@ -18,8 +18,6 @@ module Api
           json = response.parsed_body
           assert_equal "deposit", json["transaction"]["transaction_type"]
           assert_equal 5.0, json["transaction"]["amount"]
-          assert_nil json["transaction"]["sender_id"]
-          assert_equal user.id, json["transaction"]["receiver_id"]
           assert_equal 15.0, json["balance"]
         end
 
@@ -37,8 +35,6 @@ module Api
           json = response.parsed_body
           assert_equal "withdrawal", json["transaction"]["transaction_type"]
           assert_equal 5.0, json["transaction"]["amount"]
-          assert_equal user.id, json["transaction"]["sender_id"]
-          assert_nil json["transaction"]["receiver_id"]
           assert_equal 5.0, json["balance"]
         end
 

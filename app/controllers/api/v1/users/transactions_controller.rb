@@ -23,11 +23,8 @@ module Api
 
         def transaction_response(transaction)
           {
-            id:               transaction.id,
             transaction_type: transaction.transaction_type,
             amount:           transaction.amount_cents.to_f / 100,
-            sender_id:        transaction.sender_id,
-            receiver_id:      transaction.receiver_id,
             created_at:       transaction.created_at
           }
         end
