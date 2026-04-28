@@ -3,16 +3,7 @@ module Api
     module Users
       class BalancesController < ApplicationController
         def show
-          @user = User.find(params[:user_id])
-
-          unless @current_user.id == @user.id
-            render json: { error: "Forbidden" }, status: :forbidden
-            return
-          end
-
-          render json: { balance_cents: @user.balance_cents }, status: :ok
-        rescue ActiveRecord::RecordNotFound
-          render json: { error: "User not found" }, status: :not_found
+          render json: { balance: @current_user.balance_cents.to_f / 100 }, status: :ok
         end
       end
     end

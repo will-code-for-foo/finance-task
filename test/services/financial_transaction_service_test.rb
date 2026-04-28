@@ -36,29 +36,29 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
     assert_equal 200, tx.amount_cents
   end
 
-  test "deposit with amount equal to zero raises ArgumentError and does not change balance" do
+  test "deposit with amount equal to zero raises InvalidInputError and does not change balance" do
     service = FinancialTransactionService.new(
       transaction_type: "deposit",
       amount_cents: 0,
       receiver: @alice
     )
-    assert_raises(ArgumentError) { service.call }
+    assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
     assert_equal 1000, @alice.reload.balance_cents
   end
 
-  test "deposit with negative amount raises ArgumentError and does not change balance" do
+  test "deposit with negative amount raises InvalidInputError and does not change balance" do
     service = FinancialTransactionService.new(
       transaction_type: "deposit",
       amount_cents: -100,
       receiver: @alice
     )
-    assert_raises(ArgumentError) { service.call }
+    assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
     assert_equal 1000, @alice.reload.balance_cents
   end
 
-  test "deposit without receiver raises ArgumentError" do
+  test "deposit without receiver raises InvalidInputError" do
     service = FinancialTransactionService.new(transaction_type: "deposit", amount_cents: 100)
-    assert_raises(ArgumentError) { service.call }
+    assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
   end
 
   # ---------------------------------------------------------------------------
@@ -131,9 +131,9 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "withdrawal without sender raises ArgumentError" do
+  test "withdrawal without sender raises InvalidInputError" do
     service = FinancialTransactionService.new(transaction_type: "withdrawal", amount_cents: 100)
-    assert_raises(ArgumentError) { service.call }
+    assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
   end
 
   test "withdrawal from zero balance raises InsufficientFundsError" do
@@ -241,37 +241,37 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
   # MISSING / INVALID PARTICIPANTS FOR TRANSFER
   # ---------------------------------------------------------------------------
 
-  test "transfer without sender raises ArgumentError" do
+  test "transfer without sender raises InvalidInputError" do
     service = FinancialTransactionService.new(transaction_type: "transfer", amount_cents: 100, receiver: @bob)
-    assert_raises(ArgumentError) { service.call }
+    assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
   end
 
-  test "transfer without receiver raises ArgumentError" do
+  test "transfer without receiver raises InvalidInputError" do
     service = FinancialTransactionService.new(transaction_type: "transfer", amount_cents: 100, sender: @alice)
-    assert_raises(ArgumentError) { service.call }
+    assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
   end
 
-  test "transfer with same sender and receiver raises ArgumentError" do
+  test "transfer with same sender and receiver raises InvalidInputError" do
     service = FinancialTransactionService.new(
       transaction_type: "transfer",
       amount_cents: 100,
       sender: @alice,
       receiver: @alice
     )
-    assert_raises(ArgumentError) { service.call }
+    assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
   end
 
   # ---------------------------------------------------------------------------
   # UNKNOWN TRANSACTION TYPE
   # ---------------------------------------------------------------------------
 
-  test "unknown transaction type raises ArgumentError" do
+  test "unknown transaction type raises InvalidInputError" do
     service = FinancialTransactionService.new(
       transaction_type: "refund",
       amount_cents: 100,
       receiver: @alice
     )
-    assert_raises(ArgumentError) { service.call }
+    assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
   end
 
   test "unknown transaction type does not create a Transaction record" do
@@ -281,7 +281,7 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
       receiver: @alice
     )
     assert_no_difference "Transaction.count" do
-      assert_raises(ArgumentError) { service.call }
+      assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
     end
   end
 end

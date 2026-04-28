@@ -1,5 +1,34 @@
 class FinancialTransactionService
   class InsufficientFundsError < StandardError; end
+  class InvalidInputError < StandardError; end
+
+  USER_INITIATED_TYPES = %w[deposit withdrawal].freeze
+
+  def self.for_transfer(sender:, receiver_email:, amount_cents:)
+    receiver = User.find_by!(email: receiver_email)
+    new(
+      transaction_type: "transfer",
+      amount_cents:     amount_cents,
+      sender:           sender,
+      receiver:         receiver
+    )
+  end
+
+  def self.for_user_transaction(user:, transaction_type:, amount_cents:)
+    unless USER_INITIATED_TYPES.include?(transaction_type)
+      raise InvalidInputError, "Invalid transaction type. Must be one of: #{USER_INITIATED_TYPES.join(', ')}"
+    end
+
+    sender   = transaction_type == "withdrawal" ? user : nil
+    receiver = transaction_type == "deposit"    ? user : nil
+
+    new(
+      transaction_type: transaction_type,
+      amount_cents:     amount_cents,
+      sender:           sender,
+      receiver:         receiver
+    )
+  end
 
   def initialize(transaction_type:, amount_cents:, sender: nil, receiver: nil)
     @transaction_type = transaction_type
@@ -26,19 +55,24 @@ class FinancialTransactionService
   private
 
   def validate_inputs!
-    raise ArgumentError, "amount_cents must be a positive integer" unless @amount_cents.is_a?(Integer) && @amount_cents > 0
+    begin
+      @amount_cents = Integer(@amount_cents)
+    rescue ArgumentError, TypeError
+      raise InvalidInputError, "amount_cents must be a positive integer"
+    end
+    raise InvalidInputError, "amount_cents must be greater than 0" unless @amount_cents > 0
 
     case @transaction_type
     when "deposit"
-      raise ArgumentError, "receiver is required for deposit" if @receiver.nil?
+      raise InvalidInputError, "receiver is required for deposit" if @receiver.nil?
     when "withdrawal"
-      raise ArgumentError, "sender is required for withdrawal" if @sender.nil?
+      raise InvalidInputError, "sender is required for withdrawal" if @sender.nil?
     when "transfer"
-      raise ArgumentError, "sender is required for transfer" if @sender.nil?
-      raise ArgumentError, "receiver is required for transfer" if @receiver.nil?
-      raise ArgumentError, "sender and receiver must differ" if @sender.id == @receiver.id
+      raise InvalidInputError, "sender is required for transfer" if @sender.nil?
+      raise InvalidInputError, "receiver is required for transfer" if @receiver.nil?
+      raise InvalidInputError, "sender and receiver must differ" if @sender.id == @receiver.id
     else
-      raise ArgumentError, "Unknown transaction type: #{@transaction_type}"
+      raise InvalidInputError, "Unknown transaction type: #{@transaction_type}"
     end
   end
 

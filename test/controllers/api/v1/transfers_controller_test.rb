@@ -10,16 +10,14 @@ module Api
         token    = JsonWebToken.encode(user_id: sender.id)
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 200 } },
+          params: { transfer: { receiver_email: receiver.email, amount: "2.00" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
         assert_response :created
         json = response.parsed_body
         assert_equal "transfer",  json["transaction"]["transaction_type"]
-        assert_equal 200,         json["transaction"]["amount_cents"]
-        assert_equal sender.id,   json["transaction"]["sender_id"]
-        assert_equal receiver.id, json["transaction"]["receiver_id"]
+        assert_equal 2.0,         json["transaction"]["amount"]
 
         assert_equal sender.balance_cents   - 200, sender.reload.balance_cents
         assert_equal receiver.balance_cents + 200, receiver.reload.balance_cents
@@ -27,37 +25,21 @@ module Api
 
       # POST /api/v1/transfers — no token
       test "returns 401 when no token provided" do
-        sender   = users(:one)
         receiver = users(:two)
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 100 } },
+          params: { transfer: { receiver_email: receiver.email, amount: "1.00" } },
           as: :json
 
         assert_response :unauthorized
       end
 
-      # POST /api/v1/transfers — sender_id does not match current_user
-      test "returns 403 when sender_id does not match authenticated user" do
-        sender   = users(:one)
-        receiver = users(:two)
-        token    = JsonWebToken.encode(user_id: receiver.id)
-
-        post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 100 } },
-          headers: { "Authorization" => "Bearer #{token}" },
-          as: :json
-
-        assert_response :forbidden
-      end
-
       # POST /api/v1/transfers — receiver does not exist
       test "returns 404 when receiver does not exist" do
-        sender = users(:one)
-        token  = JsonWebToken.encode(user_id: sender.id)
+        token = JsonWebToken.encode(user_id: users(:one).id)
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: SecureRandom.uuid, amount_cents: 100 } },
+          params: { transfer: { receiver_email: "nonexistent@example.com", amount: "1.00" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -73,7 +55,7 @@ module Api
         token    = JsonWebToken.encode(user_id: sender.id)
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 999_999 } },
+          params: { transfer: { receiver_email: receiver.email, amount: "9999.99" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
@@ -91,7 +73,7 @@ module Api
         original_receiver_balance = receiver.balance_cents
 
         post api_v1_transfers_url,
-          params: { transfer: { sender_id: sender.id, receiver_id: receiver.id, amount_cents: 999_999 } },
+          params: { transfer: { receiver_email: receiver.email, amount: "9999.99" } },
           headers: { "Authorization" => "Bearer #{token}" },
           as: :json
 
