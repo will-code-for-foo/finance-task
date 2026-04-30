@@ -29,6 +29,14 @@ class ApplicationController < ActionController::API
       render json: { error: "User not found" }, status: :unauthorized
     end
   end
+  def parse_amount!(raw)
+    unless /\A\d+(\.\d{1,2})?\z/.match?(raw.to_s)
+      raise FinancialTransactionService::InvalidInputError,
+            "Amount must be a positive number with at most 2 decimal places"
+    end
+    (raw.to_d * 100).to_i
+  end
+
   def render_unprocessable(e)  = render json: { error: e.message }, status: :unprocessable_entity
   def render_record_invalid(e) = render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   def render_not_found(e)      = render json: { error: e.message }, status: :not_found

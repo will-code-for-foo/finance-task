@@ -6,7 +6,7 @@ module Api
           transaction = FinancialTransactionService.for_user_transaction(
             user:             @current_user,
             transaction_type: transaction_params[:type],
-            amount_cents:     (transaction_params[:amount].to_d * 100).round.to_i
+            amount_cents:     parse_amount!(transaction_params[:amount])
           ).call
 
           render json: {
