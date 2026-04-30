@@ -3,7 +3,7 @@ module Api
     module Users
       class BalancesController < ApplicationController
         def show
-          render json: { balance: @current_user.balance_cents.to_f / 100 }, status: :ok
+          render json: { balance: format("%.2f", @current_user.balance_cents.to_d / 100) }, status: :ok
         end
       end
     end

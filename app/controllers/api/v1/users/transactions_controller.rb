@@ -11,7 +11,7 @@ module Api
 
           render json: {
             transaction: transaction_response(transaction),
-            balance: @current_user.reload.balance_cents.to_f / 100
+            balance: format("%.2f", @current_user.reload.balance_cents.to_d / 100)
           }, status: :created
         end
 
@@ -24,7 +24,7 @@ module Api
         def transaction_response(transaction)
           {
             transaction_type: transaction.transaction_type,
-            amount:           transaction.amount_cents.to_f / 100,
+            amount:           format("%.2f", transaction.amount_cents.to_d / 100),
             created_at:       transaction.created_at
           }
         end
