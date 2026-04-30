@@ -20,8 +20,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "invalid with duplicate email (case-insensitive)" do
-    User.create!(email: "alice@example.com")
-    user = User.new(email: "ALICE@EXAMPLE.COM")
+    user = User.new(email: users(:one).email.upcase)
     assert_not user.valid?
     assert user.errors[:email].any?
   end
