@@ -59,7 +59,7 @@ class FinancialTransactionService
     begin
       @amount_cents = Integer(@amount_cents)
     rescue ArgumentError, TypeError
-      raise InvalidInputError, "amount_cents must be a positive integer"
+      raise InvalidInputError, "Amount must be a valid positive number"
     end
     raise InvalidInputError, "Amount must be greater than 0" unless @amount_cents > 0
     raise InvalidInputError, "Amount exceeds the maximum allowed value" if @amount_cents > MAX_AMOUNT_CENTS
