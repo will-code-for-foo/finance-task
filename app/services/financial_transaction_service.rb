@@ -3,6 +3,7 @@ class FinancialTransactionService
   class InvalidInputError < StandardError; end
 
   USER_INITIATED_TYPES = %w[deposit withdrawal].freeze
+  MAX_AMOUNT_CENTS = 100_000_000  # $1,000,000
 
   def self.for_transfer(sender:, receiver_email:, amount_cents:)
     receiver = User.find_by!(email: receiver_email)
@@ -60,7 +61,8 @@ class FinancialTransactionService
     rescue ArgumentError, TypeError
       raise InvalidInputError, "amount_cents must be a positive integer"
     end
-    raise InvalidInputError, "amount_cents must be greater than 0" unless @amount_cents > 0
+    raise InvalidInputError, "Amount must be greater than 0" unless @amount_cents > 0
+    raise InvalidInputError, "Amount exceeds the maximum allowed value" if @amount_cents > MAX_AMOUNT_CENTS
 
     case @transaction_type
     when "deposit"
