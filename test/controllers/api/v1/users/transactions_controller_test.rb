@@ -17,8 +17,8 @@ module Api
           assert_response :created
           json = response.parsed_body
           assert_equal "deposit", json["transaction"]["transaction_type"]
-          assert_equal 5.0, json["transaction"]["amount"]
-          assert_equal 15.0, json["balance"]
+          assert_equal "5.00", json["transaction"]["amount"]
+          assert_equal "15.00", json["balance"]
         end
 
         # POST /api/v1/transactions — withdrawal success
@@ -34,8 +34,8 @@ module Api
           assert_response :created
           json = response.parsed_body
           assert_equal "withdrawal", json["transaction"]["transaction_type"]
-          assert_equal 5.0, json["transaction"]["amount"]
-          assert_equal 5.0, json["balance"]
+          assert_equal "5.00", json["transaction"]["amount"]
+          assert_equal "5.00", json["balance"]
         end
 
         # POST /api/v1/transactions — insufficient funds

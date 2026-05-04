@@ -17,7 +17,7 @@ module Api
         assert_response :created
         json = response.parsed_body
         assert_equal "transfer",  json["transaction"]["transaction_type"]
-        assert_equal 2.0,         json["transaction"]["amount"]
+        assert_equal "2.00",      json["transaction"]["amount"]
 
         assert_equal sender.balance_cents   - 200, sender.reload.balance_cents
         assert_equal receiver.balance_cents + 200, receiver.reload.balance_cents

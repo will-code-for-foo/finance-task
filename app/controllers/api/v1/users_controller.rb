@@ -23,7 +23,7 @@ module Api
       def user_response(user)
         {
           email: user.email,
-          balance: user.balance_cents.to_f / 100,
+          balance: format("%.2f", user.balance_cents.to_d / 100),
           created_at: user.created_at
         }
       end

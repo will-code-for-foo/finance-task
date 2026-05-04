@@ -5,7 +5,7 @@ module Api
         transaction = FinancialTransactionService.for_transfer(
           sender:         @current_user,
           receiver_email: transfer_params[:receiver_email],
-          amount_cents:   (transfer_params[:amount].to_d * 100).round.to_i
+          amount_cents:   parse_amount!(transfer_params[:amount])
         ).call
 
         render json: { transaction: transaction_response(transaction) }, status: :created
@@ -20,7 +20,7 @@ module Api
       def transaction_response(transaction)
         {
           transaction_type: transaction.transaction_type,
-          amount:           transaction.amount_cents.to_f / 100,
+          amount:           format("%.2f", transaction.amount_cents.to_d / 100),
           created_at:       transaction.created_at
         }
       end
