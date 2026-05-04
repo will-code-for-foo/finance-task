@@ -284,4 +284,48 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
       assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
     end
   end
+
+  # ---------------------------------------------------------------------------
+  # STALE OBJECT / PESSIMISTIC LOCKING
+  # These tests verify that lock! reloads the balance from the DB before the
+  # funds check, simulating what would happen if another process had already
+  # mutated the row between when our Ruby object was loaded and when the
+  # service runs. No real threads are needed — the stale state is set up
+  # directly via update_all.
+  # ---------------------------------------------------------------------------
+
+  test "withdrawal reads fresh balance via lock!, not stale in-memory value" do
+    sender = User.find(@alice.id)             # balance_cents = 1000 in Ruby object
+
+    # Another process drains the account directly (bypasses Ruby object)
+    User.where(id: sender.id).update_all(balance_cents: 50)
+    # sender.balance_cents is still 1000 (stale); database is now 50
+
+    service = FinancialTransactionService.new(
+      transaction_type: "withdrawal",
+      amount_cents: 400,
+      sender: sender
+    )
+
+    # lock! reloads balance_cents = 50 → 50 < 400 → InsufficientFundsError
+    assert_raises(FinancialTransactionService::InsufficientFundsError) { service.call }
+    assert_equal 50, @alice.reload.balance_cents
+  end
+
+  test "transfer reads fresh sender balance via lock!, not stale in-memory value" do
+    sender = User.find(@alice.id)             # balance_cents = 1000 in Ruby object
+
+    User.where(id: sender.id).update_all(balance_cents: 50)
+
+    service = FinancialTransactionService.new(
+      transaction_type: "transfer",
+      amount_cents: 400,
+      sender: sender,
+      receiver: @bob
+    )
+
+    assert_raises(FinancialTransactionService::InsufficientFundsError) { service.call }
+    assert_equal 50, @alice.reload.balance_cents
+    assert_equal 500, @bob.reload.balance_cents
+  end
 end
