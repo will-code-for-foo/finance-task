@@ -3,7 +3,6 @@ require "test_helper"
 module Api
   module V1
     class TransfersControllerTest < ActionDispatch::IntegrationTest
-      # POST /api/v1/transfers — success
       test "creates a transfer and returns 201 with transaction details" do
         sender   = users(:one)
         receiver = users(:two)
@@ -23,7 +22,6 @@ module Api
         assert_equal receiver.balance_cents + 200, receiver.reload.balance_cents
       end
 
-      # POST /api/v1/transfers — no token
       test "returns 401 when no token provided" do
         receiver = users(:two)
 
@@ -34,7 +32,6 @@ module Api
         assert_response :unauthorized
       end
 
-      # POST /api/v1/transfers — receiver does not exist
       test "returns 404 when receiver does not exist" do
         token = JsonWebToken.encode(user_id: users(:one).id)
 
@@ -48,7 +45,6 @@ module Api
         assert json["error"].present?
       end
 
-      # POST /api/v1/transfers — insufficient funds
       test "returns 422 when transfer amount exceeds sender balance" do
         sender   = users(:one)
         receiver = users(:two)
@@ -64,7 +60,6 @@ module Api
         assert json["error"].present?
       end
 
-      # POST /api/v1/transfers — balance unchanged on failure
       test "does not change balances when transfer fails due to insufficient funds" do
         sender   = users(:one)
         receiver = users(:two)

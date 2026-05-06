@@ -3,7 +3,7 @@ class FinancialTransactionService
   class InvalidInputError < StandardError; end
 
   USER_INITIATED_TYPES = %w[deposit withdrawal].freeze
-  MAX_AMOUNT_CENTS = 100_000_000  # $1,000,000
+  MAX_AMOUNT_CENTS = 100_000_000
 
   def self.for_transfer(sender:, receiver_email:, amount_cents:)
     receiver = User.find_by(email: receiver_email)

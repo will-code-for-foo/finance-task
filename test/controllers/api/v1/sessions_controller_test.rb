@@ -3,7 +3,6 @@ require "test_helper"
 module Api
   module V1
     class SessionsControllerTest < ActionDispatch::IntegrationTest
-      # POST /api/v1/session — success
       test "returns 200 with token for existing user" do
         post api_v1_session_url,
           params: { session: { email: "alice@example.com" } },
@@ -14,7 +13,6 @@ module Api
         assert json["token"].present?
       end
 
-      # POST /api/v1/session — case-insensitive email
       test "returns 200 with token for email with different case" do
         post api_v1_session_url,
           params: { session: { email: "ALICE@example.com" } },
@@ -25,7 +23,6 @@ module Api
         assert json["token"].present?
       end
 
-      # POST /api/v1/session — unknown email
       test "returns 401 for unknown email" do
         post api_v1_session_url,
           params: { session: { email: "nonexistent@example.com" } },
@@ -36,7 +33,6 @@ module Api
         assert_equal "Invalid email", json["error"]
       end
 
-      # POST /api/v1/session — missing email
       test "returns 401 when email is blank" do
         post api_v1_session_url,
           params: { session: { email: "" } },
@@ -47,7 +43,6 @@ module Api
         assert_equal "Invalid email", json["error"]
       end
 
-      # POST /api/v1/session — no auth required
       test "does not require authentication" do
         post api_v1_session_url,
           params: { session: { email: "alice@example.com" } },
@@ -129,7 +124,6 @@ module Api
         assert json["token"].present?
       end
 
-      # POST /api/v1/session — returned token encodes the correct user id
       test "returned token encodes the authenticated user id" do
         post api_v1_session_url,
           params: { session: { email: "alice@example.com" } },
