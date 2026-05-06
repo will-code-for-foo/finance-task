@@ -6,8 +6,6 @@ class TransactionTest < ActiveSupport::TestCase
     @receiver = User.create!(email: "receiver_tx@example.com")
   end
 
-  # --- Table structure & constraints ---
-
   test "valid transfer transaction is persisted" do
     tx = Transaction.new(
       sender: @sender,
@@ -40,8 +38,6 @@ class TransactionTest < ActiveSupport::TestCase
     assert_nil tx.receiver_id
   end
 
-  # --- amount_cents > 0 ---
-
   test "amount_cents must be greater than zero" do
     tx = Transaction.new(
       receiver: @receiver,
@@ -69,8 +65,6 @@ class TransactionTest < ActiveSupport::TestCase
     assert_not tx.valid?
   end
 
-  # --- transaction_type validation ---
-
   test "transaction_type must be valid" do
     tx = Transaction.new(
       receiver: @receiver,
@@ -79,8 +73,6 @@ class TransactionTest < ActiveSupport::TestCase
     )
     assert_not tx.valid?
   end
-
-  # --- sender and receiver must differ ---
 
   test "sender_id and receiver_id cannot be the same" do
     tx = Transaction.new(
@@ -103,8 +95,6 @@ class TransactionTest < ActiveSupport::TestCase
     )
     assert_not tx.valid?
   end
-
-  # --- ActiveRecord relations ---
 
   test "belongs_to sender with class_name User" do
     tx = Transaction.create!(sender: @sender, receiver: @receiver, amount_cents: 50, transaction_type: "transfer")

@@ -1,7 +1,6 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
-  # email validations
   test "valid user with proper email" do
     user = User.new(email: "valid@example.com")
     assert user.valid?
@@ -25,7 +24,6 @@ class UserTest < ActiveSupport::TestCase
     assert user.errors[:email].any?
   end
 
-  # balance_cents validations
   test "valid with zero balance_cents" do
     user = User.new(email: "zero@example.com", balance_cents: 0)
     assert user.valid?

@@ -6,10 +6,6 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
     @bob   = User.create!(email: "bob_svc@example.com",   balance_cents: 500)
   end
 
-  # ---------------------------------------------------------------------------
-  # DEPOSIT
-  # ---------------------------------------------------------------------------
-
   test "deposit increases receiver balance by amount_cents" do
     service = FinancialTransactionService.new(
       transaction_type: "deposit",
@@ -60,10 +56,6 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
     service = FinancialTransactionService.new(transaction_type: "deposit", amount_cents: 100)
     assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
   end
-
-  # ---------------------------------------------------------------------------
-  # WITHDRAWAL
-  # ---------------------------------------------------------------------------
 
   test "withdrawal decreases sender balance by amount_cents" do
     service = FinancialTransactionService.new(
@@ -145,10 +137,6 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
     )
     assert_raises(FinancialTransactionService::InsufficientFundsError) { service.call }
   end
-
-  # ---------------------------------------------------------------------------
-  # TRANSFER
-  # ---------------------------------------------------------------------------
 
   test "transfer decreases sender balance and increases receiver balance" do
     service = FinancialTransactionService.new(
@@ -237,10 +225,6 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
     assert_equal total_before, total_after
   end
 
-  # ---------------------------------------------------------------------------
-  # MISSING / INVALID PARTICIPANTS FOR TRANSFER
-  # ---------------------------------------------------------------------------
-
   test "transfer without sender raises InvalidInputError" do
     service = FinancialTransactionService.new(transaction_type: "transfer", amount_cents: 100, receiver: @bob)
     assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
@@ -260,10 +244,6 @@ class FinancialTransactionServiceTest < ActiveSupport::TestCase
     )
     assert_raises(FinancialTransactionService::InvalidInputError) { service.call }
   end
-
-  # ---------------------------------------------------------------------------
-  # UNKNOWN TRANSACTION TYPE
-  # ---------------------------------------------------------------------------
 
   test "unknown transaction type raises InvalidInputError" do
     service = FinancialTransactionService.new(

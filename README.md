@@ -27,6 +27,19 @@ curl -X POST http://localhost:3000/api/v1/users \
 -H "Content-Type: application/json" \
 -d '{"user": {"email": "alice@example.com"}}'
 ```
+### Login (existing user)
+
+Returns a new JWT token for an existing user (use when a token expired).
+```
+curl -X POST http://localhost:3000/api/v1/session \
+	-H "Content-Type: application/json" \
+	-d '{"session": {"email": "alice@example.com"}}'
+```
+
+Response example:
+```
+{ "token": "<JWT_TOKEN>" }
+```
 ### Deposit/withdrawal
 ```
 curl -X POST http://localhost:3000/api/v1/transactions \
