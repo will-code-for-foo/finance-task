@@ -24,6 +24,20 @@ class UserTest < ActiveSupport::TestCase
     assert user.errors[:email].any?
   end
 
+  test "cannot save user with same email in uppercase as existing user" do
+    assert_no_difference "User.count" do
+      user = User.new(email: users(:one).email.upcase)
+      assert_not user.save
+    end
+    assert_equal 1, User.where(email: users(:one).email).count
+  end
+
+  test "email is normalized to lowercase before save" do
+    user = User.create!(email: "New.User@EXAMPLE.COM")
+    assert_equal "new.user@example.com", user.email
+    assert_equal "new.user@example.com", user.reload.email
+  end
+
   test "valid with zero balance_cents" do
     user = User.new(email: "zero@example.com", balance_cents: 0)
     assert user.valid?
