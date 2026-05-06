@@ -32,7 +32,17 @@ module Api
 
         assert_response :unprocessable_entity
         json = response.parsed_body
-        assert json["errors"].present?
+        assert_includes json["errors"], "Email already exists"
+      end
+
+      test "returns 422 when email is already taken with different case" do
+        post api_v1_users_url,
+          params: { user: { email: "ALICE@EXAMPLE.COM" } },
+          as: :json
+
+        assert_response :unprocessable_entity
+        json = response.parsed_body
+        assert_includes json["errors"], "Email already exists"
       end
 
       test "does not require authentication" do

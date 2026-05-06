@@ -4,7 +4,7 @@ module Api
       skip_before_action :authenticate_request!
 
       def create
-        user = User.find_by("LOWER(email) = LOWER(?)", session_params[:email].to_s.strip)
+        user = User.find_by(email: session_params[:email].to_s.downcase.strip)
 
         if user
           token = JsonWebToken.encode(user_id: user.id)
