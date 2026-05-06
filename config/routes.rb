@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :users, only: [:create]
+      resource  :session, only: [:create]
       resource  :balance,      only: [:show],   module: :users
       resources :transactions, only: [:create], module: :users
       resources :transfers,    only: [:create]

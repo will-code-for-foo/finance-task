@@ -2,6 +2,7 @@ class ApplicationController < ActionController::API
   before_action :authenticate_request!
 
   rescue_from StandardError, with: :render_internal_error
+  rescue_from ActionController::ParameterMissing, with: :render_parameter_missing
   rescue_from FinancialTransactionService::InvalidInputError, with: :render_unprocessable
   rescue_from FinancialTransactionService::InsufficientFundsError, with: :render_unprocessable
   rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
@@ -29,6 +30,7 @@ class ApplicationController < ActionController::API
       render json: { error: "User not found" }, status: :unauthorized
     end
   end
+
   def parse_amount!(raw)
     unless /\A\d+(\.\d{1,2})?\z/.match?(raw.to_s)
       raise FinancialTransactionService::InvalidInputError,
@@ -38,8 +40,13 @@ class ApplicationController < ActionController::API
   end
 
   def render_unprocessable(e)  = render json: { error: e.message }, status: :unprocessable_entity
+
   def render_record_invalid(e) = render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+
   def render_not_found(e)      = render json: { error: e.message }, status: :not_found
+
+  def render_parameter_missing(e) = render json: { error: e.message }, status: :bad_request
+
   def render_internal_error(e)
     Rails.logger.error("#{e.class}: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
     render json: { error: "Internal server error" }, status: :internal_server_error
